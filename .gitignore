@@ -2,6 +2,9 @@
 *.slo
 *.lo
 *.o
+*.class
+*.pyd
+*.pyc
 
 # Compiled Dynamic libraries
 *.so
