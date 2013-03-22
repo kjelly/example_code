@@ -5,6 +5,7 @@
 *.class
 *.pyd
 *.pyc
+*.exe
 
 # Compiled Dynamic libraries
 *.so
