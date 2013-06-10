@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset=utf-8>
+<title>HTML5 Demo: Canvas</title>
+<script src="jquery-1.10.1.js"> </script>
+<script src="pure/pure.js"> </script>
+</head>
+<body>
+<ul></ul>
+
+<script type="text/x-template" id="li-template">
+    <li class="entrys current_path@data-current-path"><a class="entry" href="#"></a></li>
+</script>
+
+<script type="text/javascript">
+
+function init_template(){
+    $('ul').html($('#li-template').html());
+}
+
+function cd(){
+    var current_path = $('.entrys').data('current-path');
+    var next_path = current_path + $(this).text();
+    data = self.cd(next_path);
+    data = JSON.parse(data);
+    init_template();
+    $('ul').autoRender(data);
+    $(".entry").on('click',cd);
+    return false;
+}
+
+init_template();
+data = JSON.parse(self.list_dir(self.get_current_path()));
+$('ul').autoRender(data);
+$(".entry").on('click',cd);
+
+</script>
+</body>
+
+
+</html>
+
