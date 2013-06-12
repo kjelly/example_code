@@ -6,12 +6,31 @@ import os.path
 from PySide import QtGui, QtCore, QtWebKit
 
 
+class Handler(QtCore.QObject):
+    def __init__(self, web):
+        super(Handler, self).__init__()
+        self.web = web
+    @QtCore.Slot(result=str)
+    def sayHello(self):
+        print 'you call python function.'
+        return 'hello'
+
+    @QtCore.Slot(result=str)
+    def submit(self):
+        page = self.web.page()
+        frame = page.currentFrame()
+        user_input = frame.findFirstElement("#fullname").evaluateJavaScript("this.value")
+        QtGui.QMessageBox.warning(self.web, "Qt Message Box", user_input)
+        return ''
+
+
 class WebviewDemo(QtGui.QWidget):
 
     def __init__(self):
         super(WebviewDemo, self).__init__()
 
         self.initUI()
+        self.handler= Handler(self.web)
         self.initEvent()
         self.initJavascriptEnv()
 
@@ -64,7 +83,7 @@ class WebviewDemo(QtGui.QWidget):
         # So the "self" object  in javascript means the "self" instance in python.
         # Note: the "self"" objeect is maybe invalid after loading new url.
         # So check
-        frame.addToJavaScriptWindowObject("self", self)
+        frame.addToJavaScriptWindowObject("self", self.handler)
 
     # Any function which want to be called by javascript, it need to be wrapped by QtCore.Slot.
     # If You use C++ and Qt, you also need Q_INVOKABLE macro.
@@ -75,7 +94,6 @@ class WebviewDemo(QtGui.QWidget):
 
     @QtCore.Slot(result=str)
     def submit(self):
-        print 'sss'
         page = self.web.page()
         frame = page.currentFrame()
         user_input = frame.findFirstElement("#fullname").evaluateJavaScript("this.value")

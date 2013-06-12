@@ -8,6 +8,33 @@ import json
 from PySide import QtGui, QtCore, QtWebKit
 
 
+class Handler(QtCore.QObject):
+
+    def __init__(self, path, web):
+        super(Handler, self).__init__()
+
+        self.current_path = path if path[-1] == '/' else path + '/'
+        self.web = web
+
+    @QtCore.Slot(str, result=str)
+    def cd(self, new_path):
+        new_path =  os.path.abspath(new_path)
+        if not os.path.isdir(new_path):
+            raise Exception("invalid path")
+        self.current_path = new_path if new_path[-1] == '/' else new_path + '/'
+        return self.list_dir(self.current_path)
+
+    @QtCore.Slot(str, result=str)
+    def list_dir(self, path):
+        entry = ['..']
+        entry.extend(os.listdir(path))
+        return json.dumps({'current_path': path, 'entrys': map(lambda s: {'entry': s}, entry)})
+
+    @QtCore.Slot(result=str)
+    def get_current_path(self):
+        return self.current_path
+
+
 class FileManager(QtGui.QWidget):
 
     def __init__(self, path):
@@ -17,6 +44,7 @@ class FileManager(QtGui.QWidget):
         self.current_path = path
 
         self.initUI()
+        self.handler = Handler(path, self.web)
         self.initEvent()
         self.initJavascriptEnv()
 
@@ -70,33 +98,14 @@ class FileManager(QtGui.QWidget):
         # So the "self" object  in javascript means the "self" instance in python.
         # Note: the "self"" objeect is maybe invalid after loading new url.
         # So check
-        frame.addToJavaScriptWindowObject("self", self)
+        frame.addToJavaScriptWindowObject("self", self.handler)
 
-    @QtCore.Slot(str, result=str)
-    def cd(self, new_path):
-        new_path =  os.path.abspath(new_path)
-        if not os.path.isdir(new_path):
-            raise Exception("invalid path")
-        self.current_path = new_path if new_path[-1] == '/' else new_path + '/'
-        return self.list_dir(self.current_path)
-
-    @QtCore.Slot(str, result=str)
-    def list_dir(self, path):
-        entry = ['..']
-        entry.extend(os.listdir(path))
-        return json.dumps({'current_path': path, 'entrys': map(lambda s: {'entry': s}, entry)})
-
-    @QtCore.Slot(result=str)
-    def get_current_path(self):
-        return self.current_path
 
 
 def main():
     app = QtGui.QApplication(sys.argv)
     widget = FileManager(os.path.dirname(__file__))
     widget.show()
-    print widget.cd(os.path.dirname(__file__))
-    print widget.list_dir(os.path.dirname(__file__))
 
     sys.exit(app.exec_())
 
