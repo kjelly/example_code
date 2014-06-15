@@ -1,0 +1,24 @@
+import os
+import os.path
+import atexit
+# Program('a.cpp', LIBS = ['boost_regex', 'boost_program_options', 'boost_python', 'python2.7'], CPPPATH=['/usr/include/python2.7/'])
+# Library('a.cpp', LIBS = ['boost_regex', 'boost_program_options', 'boost_python', 'python2.7'], CPPPATH=['/usr/include/python2.7/'])
+
+source = ['hello_ext.cpp']
+target = 'hello_ext'
+
+print 'start'
+SharedLibrary(target, source, LIBS = ['boost_regex', 'boost_program_options', 'boost_python', 'python2.7'], CPPPATH=['/usr/include/python2.7/'])
+print 'end'
+
+
+def rename():
+    lib_so = 'lib%s.so' % target
+    so = '%s.so' % target
+    if os.path.exists(lib_so):
+        os.rename(lib_so, so)
+        print 'rename'
+    else:
+        print 'failed %s' % lib_so
+
+atexit.register(rename)
