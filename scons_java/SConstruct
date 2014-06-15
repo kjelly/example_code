@@ -1,0 +1,2 @@
+Java('classes', 'src')
+Jar(target = 'test.jar', source = ['classes', 'Manifest.txt'])
