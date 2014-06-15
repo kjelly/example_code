@@ -8,6 +8,7 @@
 *.exe
 
 # Compiled Dynamic libraries
+*.os
 *.so
 *.dylib
 
